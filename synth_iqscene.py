@@ -14,7 +14,7 @@ def save_to_sigmf(samples, frequency: float, meta_dict:dict={}):
     time = now.strftime("%H%M%S")
     Path("recordings").mkdir(exist_ok=True)
     folder = Path("recordings")
-    filename = f"synth_iq_scene_{int(int(frequency) / 1000000)}MHz{time}.npy"
+    filename = f"synth_iq_scene_{int(int(frequency) / 1000000)}MHz{time}"
     fullpath = folder / filename
 
     # Save data file
@@ -124,9 +124,9 @@ def generate_signal(mod_type, num_symbols, samples_per_symbol, fc, variance=0.01
         remaining_tape_length = len(baseband_sequence) - last_end_pos
         useful_whitespace_length = remaining_tape_length - remaining_symbol_length
       
-        #0.25 forces it in the first quarter of remaining possible spaces, sqrt adds a distribution
+        #0.5 forces it in the first fifth of remaining possible spaces, sqrt adds a distribution
         bias = np.sqrt(np.random.rand())
-        start_pos = np.random.randint(last_end_pos,last_end_pos+math.ceil(0.25*bias*(useful_whitespace_length-group_length)))
+        start_pos = np.random.randint(last_end_pos,last_end_pos+math.ceil(0.2*bias*(useful_whitespace_length-group_length)))
         end_pos = start_pos + group_length
         
         baseband_sequence[start_pos:end_pos] = symbols[group_endpoints[i]:group_endpoints[i+1]]
@@ -199,6 +199,10 @@ def synth_logiq(args):
     signal = signal / max_magnitude
 
     label =f'Scene with {n_signals} at {nf_level} dB'
+
+
+    signal = signal.astype('complex64')
+    # print(f"datatype: {signal.dtype}")
 
     # metadata dictionary for adding to sigmf file
     meta_dict = {

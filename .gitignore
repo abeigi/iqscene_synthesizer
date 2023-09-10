@@ -2,3 +2,4 @@
 *.sigmf-data
 recordings
 recordings/*
+venv
